@@ -3,6 +3,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { generateEventsForRange, CALENDAR_START } from './data/defaultEvents';
 import { GANTTS } from './data/eventTypes';
 import GanttBoard from './components/GanttBoard';
+import BriahMark from './components/BriahMark';
 import {
   addMonths,
   isBeforeMonth,
@@ -118,7 +119,13 @@ function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>בריאה</h1>
+        <div className="brand-lockup">
+          <BriahMark size={40} color="#BD5A31" />
+          <div className="brand-text">
+            <h1>בריאה</h1>
+            <p className="brand-tagline">מעטפת לחיים עצמם</p>
+          </div>
+        </div>
         <p className="app-subtitle">קהילת ווילנס בתל אביב — מערכת גאנטים</p>
       </header>
 

@@ -1,11 +1,11 @@
 export const EVENT_TYPES = {
-  cycle: { label: 'מחזור', color: '#2563eb', bg: '#dbeafe' },
-  community: { label: 'קהילה', color: '#16a34a', bg: '#dcfce7' },
-  staff: { label: 'צוות', color: '#7c3aed', bg: '#ede9fe' },
-  special: { label: 'אירוע', color: '#ea580c', bg: '#ffedd5' },
-  holiday: { label: 'חג', color: '#dc2626', bg: '#fee2e2' },
-  marketing: { label: 'שיווק', color: '#0d9488', bg: '#ccfbf1' },
-  financial: { label: 'כלכלה', color: '#ca8a04', bg: '#fef9c3' },
+  cycle: { label: 'מחזור', color: '#3E6B8A', bg: '#DCE6EC' },
+  community: { label: 'קהילה', color: '#7C8D59', bg: '#E6EBD9' },
+  staff: { label: 'צוות', color: '#8A5578', bg: '#EDE0E8' },
+  special: { label: 'אירוע', color: '#BD5A31', bg: '#F3DFD1' },
+  holiday: { label: 'חג', color: '#A8391F', bg: '#F1DAD1' },
+  marketing: { label: 'שיווק', color: '#3E8A82', bg: '#DBEBE8' },
+  financial: { label: 'כלכלה', color: '#B8862E', bg: '#F1E5CB' },
 };
 
 // GANTTS defines the three boards and which event types appear (as rows) on each.

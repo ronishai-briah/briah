@@ -53,6 +53,17 @@ export function generateRecurringEventsForMonth(year, month) {
     }));
   }
 
+  for (const d of allWeekdaysInMonth(year, month, 0)) { // Sunday
+    events.push(makeEvent({
+      id: `mentor-value-${toISODate(d)}`,
+      name: 'שליחת ערך בקבוצת הווטסאפ',
+      date: d,
+      type: 'community',
+      ganttIds: [1],
+      owner: 'מלווה',
+    }));
+  }
+
   const wellnessCircle = nthWeekdayOfMonth(year, month, 3, 2); // 2nd Wednesday
   if (wellnessCircle) {
     events.push(makeEvent({
