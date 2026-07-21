@@ -444,6 +444,15 @@ body {
   transition: filter 0.1s, box-shadow 0.1s;
 }
 
+.gantt-prep {
+  position: absolute;
+  z-index: 0;
+  height: 8px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
 .gantt-bar:hover {
   filter: brightness(0.96);
   box-shadow: 0 1px 4px rgba(59, 42, 30, 0.18);

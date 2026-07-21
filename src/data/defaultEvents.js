@@ -4,6 +4,7 @@ import {
   nthWeekdayOfMonth,
   allWeekdaysInMonth,
   addMonths,
+  DAY_MS,
 } from '../utils/dates';
 import { generateCycleEvents } from './cycles';
 
@@ -41,6 +42,15 @@ export function generateRecurringEventsForMonth(year, month) {
     date: luzDeadline,
     type: 'staff',
     ganttIds: [1],
+  }));
+
+  const payroll = new Date(year, month, 10);
+  events.push(makeEvent({
+    id: `payroll-${year}-${month}`,
+    name: 'משכורות',
+    date: payroll,
+    type: 'financial',
+    ganttIds: [3],
   }));
 
   for (const d of allWeekdaysInMonth(year, month, 2)) { // Tuesday
@@ -86,6 +96,55 @@ export function generateRecurringEventsForMonth(year, month) {
     }));
   }
 
+  // Landing page + ad prep starts a month before the *next* month's lecture.
+  const nextMonth = addMonths(year, month, 1);
+  const nextLecture = nthWeekdayOfMonth(nextMonth.year, nextMonth.month, 4, 3);
+  if (nextLecture) {
+    const lecturePrep = new Date(nextLecture.getTime() - 30 * DAY_MS);
+    if (lecturePrep.getFullYear() === year && lecturePrep.getMonth() === month) {
+      events.push(makeEvent({
+        id: `lecture-prep-${nextMonth.year}-${nextMonth.month}`,
+        name: 'בדיקת דף נחיתה + התחלת פרסום (לקראת ההרצאה)',
+        date: lecturePrep,
+        type: 'marketing',
+        ganttIds: [2],
+      }));
+    }
+  }
+
+  const campaignStrategy = new Date(year, month, 2); // 2nd of the month
+  events.push(makeEvent({
+    id: `campaign-strategy-${year}-${month}`,
+    name: 'ישיבת אסטרטגיית קמפיינים',
+    date: campaignStrategy,
+    type: 'marketing',
+    ganttIds: [2],
+    notes: 'בחינת הגאנט החודשי קדימה, נושאים לדיון וסוגי תכנים לחודש',
+  }));
+
+  const shootDay = nthWeekdayOfMonth(year, month, 2, 3); // 3rd Tuesday
+  if (shootDay) {
+    events.push(makeEvent({
+      id: `shoot-day-${year}-${month}`,
+      name: 'יום צילום',
+      date: shootDay,
+      type: 'marketing',
+      ganttIds: [2],
+    }));
+  }
+
+  const contentMeeting = nthWeekdayOfMonth(year, month, 4, 2); // 2nd Thursday
+  if (contentMeeting) {
+    events.push(makeEvent({
+      id: `content-meeting-${year}-${month}`,
+      name: 'פגישת תוכן',
+      date: contentMeeting,
+      type: 'marketing',
+      ganttIds: [2],
+      owner: 'רוני, עינב וניצן',
+    }));
+  }
+
   const staffEvening = nthWeekdayOfMonth(year, month, 0, 2); // 2nd Sunday
   if (staffEvening) {
     events.push(makeEvent({
@@ -101,10 +160,11 @@ export function generateRecurringEventsForMonth(year, month) {
   if (training) {
     events.push(makeEvent({
       id: `training-${year}-${month}`,
-      name: 'הדרכה חודשית',
+      name: 'הדרכה מקצועית',
       date: training,
       type: 'staff',
       ganttIds: [1],
+      owner: 'ניצן, מטפלים ומלווים',
     }));
   }
 
@@ -116,6 +176,91 @@ export function generateRecurringEventsForMonth(year, month) {
       date: staffMeeting,
       type: 'staff',
       ganttIds: [1],
+      owner: 'כולם',
+    }));
+  }
+
+  const ganttMeeting = nthWeekdayOfMonth(year, month, 3, 1); // 1st Wednesday
+  if (ganttMeeting) {
+    events.push(makeEvent({
+      id: `gantt-meeting-${year}-${month}`,
+      name: 'פגישת גאנטים',
+      date: ganttMeeting,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'רוני וניצן',
+    }));
+  }
+
+  const budgetMeeting = nthWeekdayOfMonth(year, month, 4, 1); // 1st Thursday
+  if (budgetMeeting) {
+    events.push(makeEvent({
+      id: `budget-meeting-${year}-${month}`,
+      name: 'פגישת תקציב',
+      date: budgetMeeting,
+      type: 'financial',
+      ganttIds: [3],
+      owner: 'רוני וניצן',
+    }));
+  }
+
+  const partnershipHealth = nthWeekdayOfMonth(year, month, 3, 4); // 4th Wednesday
+  if (partnershipHealth) {
+    events.push(makeEvent({
+      id: `partnership-health-${year}-${month}`,
+      name: 'בריאות השותפות',
+      date: partnershipHealth,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'רוני וניצן',
+    }));
+  }
+
+  const staffWorkshop = nthWeekdayOfMonth(year, month, 1, 4); // 4th Monday
+  if (staffWorkshop) {
+    events.push(makeEvent({
+      id: `staff-workshop-${year}-${month}`,
+      name: 'סדנת צוות',
+      date: staffWorkshop,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'רוטציה',
+    }));
+  }
+
+  const mentorOneOnOneMeir = nthWeekdayOfMonth(year, month, 2, 1); // 1st Tuesday
+  if (mentorOneOnOneMeir) {
+    events.push(makeEvent({
+      id: `mentor-1on1-meir-${year}-${month}`,
+      name: 'אחד-על-אחד מלווים',
+      date: mentorOneOnOneMeir,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'ניצן ומאיר',
+    }));
+  }
+
+  const mentorOneOnOneShachar = nthWeekdayOfMonth(year, month, 2, 3); // 3rd Tuesday
+  if (mentorOneOnOneShachar) {
+    events.push(makeEvent({
+      id: `mentor-1on1-shachar-${year}-${month}`,
+      name: 'אחד-על-אחד מלווים',
+      date: mentorOneOnOneShachar,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'ניצן ושחר',
+    }));
+  }
+
+  const therapistsMeeting = nthWeekdayOfMonth(year, month, 1, 2); // 2nd Monday
+  if (therapistsMeeting) {
+    events.push(makeEvent({
+      id: `therapists-meeting-${year}-${month}`,
+      name: 'פגישת מטפלים',
+      date: therapistsMeeting,
+      type: 'staff',
+      ganttIds: [1],
+      owner: 'רוני',
     }));
   }
 
