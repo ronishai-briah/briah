@@ -24,9 +24,17 @@ function editableFields(event) {
   return { name, date, endDate, type, owner, notes };
 }
 
+function todayRangeStart() {
+  const t = new Date();
+  if (isBeforeMonth(t.getFullYear(), t.getMonth(), CALENDAR_START.year, CALENDAR_START.month)) {
+    return { year: CALENDAR_START.year, month: CALENDAR_START.month };
+  }
+  return { year: t.getFullYear(), month: t.getMonth() };
+}
+
 function App() {
   const [activeGantt, setActiveGantt] = useState(1);
-  const [rangeStart, setRangeStart] = useState({ year: CALENDAR_START.year, month: CALENDAR_START.month });
+  const [rangeStart, setRangeStart] = useState(todayRangeStart);
   const [zoomIdx, setZoomIdx] = useState(1); // default: 3 months
 
   const [customEvents, setCustomEvents] = useLocalStorage('briah-custom-events', []);
@@ -77,12 +85,7 @@ function App() {
   }
 
   function goToday() {
-    const t = new Date();
-    if (isBeforeMonth(t.getFullYear(), t.getMonth(), CALENDAR_START.year, CALENDAR_START.month)) {
-      setRangeStart({ year: CALENDAR_START.year, month: CALENDAR_START.month });
-    } else {
-      setRangeStart({ year: t.getFullYear(), month: t.getMonth() });
-    }
+    setRangeStart(todayRangeStart());
   }
 
   function saveEvent(event) {
