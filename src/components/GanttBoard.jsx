@@ -218,7 +218,7 @@ export default function GanttBoard({
                   {days.map((d) => (
                     <div
                       key={d.toISOString()}
-                      className={`gantt-grid-cell ${d.getDay() === 5 || d.getDay() === 6 ? 'weekend' : ''}`}
+                      className={`gantt-grid-cell ${d.getDay() === 5 || d.getDay() === 6 ? 'weekend' : ''} ${isToday(d) ? 'today' : ''}`}
                       style={{ width: dayWidth }}
                     />
                   ))}

@@ -390,11 +390,16 @@ body {
 }
 
 .gantt-day-cell.today {
-  color: var(--accent);
+  background: var(--accent);
+  color: #fff;
 }
 
 .gantt-day-cell.today .gantt-day-num {
   font-weight: 700;
+}
+
+.gantt-day-cell.today .gantt-day-wd {
+  opacity: 1;
 }
 
 .gantt-track {
@@ -416,6 +421,10 @@ body {
 
 .gantt-grid-cell.weekend {
   background: rgba(189, 90, 49, 0.04);
+}
+
+.gantt-grid-cell.today {
+  background: rgba(189, 90, 49, 0.14);
 }
 
 .gantt-today-line {
