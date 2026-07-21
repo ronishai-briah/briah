@@ -10,10 +10,18 @@ import { generateCycleEvents } from './cycles';
 
 // Weekday indices below match Date#getDay(): 0=Sunday ... 6=Saturday
 
+// Verified against the Hebrew calendar (hebcal), Israel day counts.
 const HOLIDAYS = [
-  { id: 'h-yom-kippur-2026', name: 'יום כיפור', start: '2026-10-01', end: '2026-10-01' },
-  { id: 'h-sukkot-2026', name: 'סוכות', start: '2026-10-06', end: '2026-10-12' },
-  { id: 'h-hanukkah-2026', name: 'חנוכה', start: '2026-12-14', end: '2026-12-22' },
+  { id: 'h-rosh-hashana-2026', name: 'ראש השנה', start: '2026-09-12', end: '2026-09-13' },
+  { id: 'h-yom-kippur-2026', name: 'יום כיפור', start: '2026-09-21', end: '2026-09-21' },
+  { id: 'h-sukkot-2026', name: 'סוכות', start: '2026-09-26', end: '2026-10-02' },
+  { id: 'h-simchat-torah-2026', name: 'שמחת תורה', start: '2026-10-03', end: '2026-10-03' },
+  { id: 'h-hanukkah-2026', name: 'חנוכה', start: '2026-12-05', end: '2026-12-12' },
+  { id: 'h-tu-bishvat-2027', name: 'ט"ו בשבט', start: '2027-02-04', end: '2027-02-04' },
+  { id: 'h-purim-2027', name: 'פורים', start: '2027-03-14', end: '2027-03-14' },
+  { id: 'h-pesach-2027', name: 'פסח', start: '2027-03-28', end: '2027-04-03' },
+  { id: 'h-yom-haatzmaut-2027', name: 'יום העצמאות', start: '2027-05-12', end: '2027-05-12' },
+  { id: 'h-shavuot-2027', name: 'שבועות', start: '2027-05-17', end: '2027-05-17' },
 ];
 
 // The real, community-supplied schedule for August 2026 (לוז חודש אוגוסט).
