@@ -1,55 +1,46 @@
 import {
   toISODate,
+  fromISODate,
   nthWeekdayOfMonth,
   allWeekdaysInMonth,
   addMonths,
 } from '../utils/dates';
+import { generateCycleEvents } from './cycles';
 
-// Weekday indices: 0=Monday ... 6=Sunday
+// Weekday indices below match Date#getDay(): 0=Sunday ... 6=Saturday
 
 const HOLIDAYS = [
   { id: 'h-yom-kippur-2026', name: 'יום כיפור', start: '2026-10-01', end: '2026-10-01' },
   { id: 'h-sukkot-2026', name: 'סוכות', start: '2026-10-06', end: '2026-10-12' },
-  { id: 'h-hanukkah-2026', name: 'חנוכה', start: '2026-12-14', end: '2026-12-14' },
-  { id: 'h-purim-2027', name: 'פורים', start: '2027-03-27', end: '2027-03-27' },
-  { id: 'h-pesach-2027', name: 'פסח', start: '2027-04-27', end: '2027-04-27' },
-  { id: 'h-rosh-hashana-2027', name: 'ראש השנה', start: '2027-09-27', end: '2027-09-27' },
+  { id: 'h-hanukkah-2026', name: 'חנוכה', start: '2026-12-14', end: '2026-12-22' },
 ];
 
-const BIWEEKLY_REFERENCE = new Date(2026, 7, 2); // first Sunday of Aug 2026
-
-function makeEvent({ id, name, date, endDate, type, owner, notes }) {
+function makeEvent({ id, name, date, endDate, type, ganttIds, owner, notes }) {
   return {
     id,
     name,
     date: toISODate(date),
     endDate: endDate ? toISODate(endDate) : undefined,
     type,
+    ganttIds,
     owner: owner || '',
     notes: notes || '',
     isDefault: true,
   };
 }
 
-export function generateDefaultEventsForMonth(year, month) {
+// The fixed recurring events that load automatically every month, per the
+// community's operating rhythm.
+export function generateRecurringEventsForMonth(year, month) {
   const events = [];
 
-  const cycleOpen = new Date(year, month, 1);
+  const luzDeadline = new Date(year, month, 15);
   events.push(makeEvent({
-    id: `cycle-open-${year}-${month}`,
-    name: 'פתיחת מחזור חדש',
-    date: cycleOpen,
-    type: 'cycle',
-    owner: 'צוות ניהול',
-  }));
-
-  const regClose = new Date(year, month, 15);
-  events.push(makeEvent({
-    id: `reg-close-${year}-${month}`,
-    name: 'סגירת הרשמה למחזור הבא',
-    date: regClose,
-    type: 'cycle',
-    owner: 'צוות ניהול',
+    id: `luz-deadline-${year}-${month}`,
+    name: 'דד-ליין שליחת לוז לצוות',
+    date: luzDeadline,
+    type: 'staff',
+    ganttIds: [1],
   }));
 
   for (const d of allWeekdaysInMonth(year, month, 2)) { // Tuesday
@@ -58,7 +49,7 @@ export function generateDefaultEventsForMonth(year, month) {
       name: 'יוגה שבועית',
       date: d,
       type: 'community',
-      owner: 'מדריך/ת יוגה',
+      ganttIds: [1],
     }));
   }
 
@@ -69,6 +60,7 @@ export function generateDefaultEventsForMonth(year, month) {
       name: 'מעגל בריאה',
       date: wellnessCircle,
       type: 'community',
+      ganttIds: [1],
     }));
   }
 
@@ -78,7 +70,30 @@ export function generateDefaultEventsForMonth(year, month) {
       id: `lecture-${year}-${month}`,
       name: 'הרצאה',
       date: lecture,
-      type: 'community',
+      type: 'marketing',
+      ganttIds: [2],
+    }));
+  }
+
+  const staffEvening = nthWeekdayOfMonth(year, month, 0, 2); // 2nd Sunday
+  if (staffEvening) {
+    events.push(makeEvent({
+      id: `staff-evening-${year}-${month}`,
+      name: 'ערב צוות',
+      date: staffEvening,
+      type: 'staff',
+      ganttIds: [1],
+    }));
+  }
+
+  const training = nthWeekdayOfMonth(year, month, 1, 3); // 3rd Monday
+  if (training) {
+    events.push(makeEvent({
+      id: `training-${year}-${month}`,
+      name: 'הדרכה חודשית',
+      date: training,
+      type: 'staff',
+      ganttIds: [1],
     }));
   }
 
@@ -89,43 +104,21 @@ export function generateDefaultEventsForMonth(year, month) {
       name: 'ישיבת צוות',
       date: staffMeeting,
       type: 'staff',
+      ganttIds: [1],
     }));
   }
 
-  const training = nthWeekdayOfMonth(year, month, 1, 3); // 3rd Monday
-  if (training) {
-    events.push(makeEvent({
-      id: `training-${year}-${month}`,
-      name: 'הדרכה',
-      date: training,
-      type: 'staff',
-    }));
-  }
-
-  for (const d of allWeekdaysInMonth(year, month, 0)) { // Sunday
-    const weeksSinceRef = Math.round((d - BIWEEKLY_REFERENCE) / (7 * 24 * 60 * 60 * 1000));
-    if (weeksSinceRef % 2 === 0) {
-      events.push(makeEvent({
-        id: `mentors-${toISODate(d)}`,
-        name: 'פגישת מלווים',
-        date: d,
-        type: 'staff',
-      }));
-    }
-  }
-
+  const monthStart = toISODate(new Date(year, month, 1));
+  const monthEnd = toISODate(new Date(year, month + 1, 0));
   for (const h of HOLIDAYS) {
-    const start = h.start;
-    const end = h.end;
-    const monthStart = toISODate(new Date(year, month, 1));
-    const monthEnd = toISODate(new Date(year, month + 1, 0));
-    if (end >= monthStart && start <= monthEnd) {
+    if (h.end >= monthStart && h.start <= monthEnd) {
       events.push({
         id: h.id,
         name: h.name,
-        date: start,
-        endDate: end !== start ? end : undefined,
+        date: h.start,
+        endDate: h.end !== h.start ? h.end : undefined,
         type: 'holiday',
+        ganttIds: [1],
         owner: '',
         notes: '',
         isDefault: true,
@@ -136,14 +129,26 @@ export function generateDefaultEventsForMonth(year, month) {
   return events;
 }
 
-export function generateDefaultEventsForRange(startYear, startMonth, endYear, endMonth) {
+export function generateRecurringEventsForRange(startYear, startMonth, endYear, endMonth) {
   const events = [];
   let cursor = { year: startYear, month: startMonth };
   while (cursor.year < endYear || (cursor.year === endYear && cursor.month <= endMonth)) {
-    events.push(...generateDefaultEventsForMonth(cursor.year, cursor.month));
+    events.push(...generateRecurringEventsForMonth(cursor.year, cursor.month));
     cursor = addMonths(cursor.year, cursor.month, 1);
   }
   return events;
 }
 
-export const CALENDAR_START = { year: 2026, month: 7 }; // August 2026
+// All generated (non-custom) events overlapping [rangeStartIso, rangeEndIso]:
+// recurring monthly events + cycle bars/registration markers.
+export function generateEventsForRange(rangeStartIso, rangeEndIso) {
+  const start = fromISODate(rangeStartIso);
+  const end = fromISODate(rangeEndIso);
+  const recurring = generateRecurringEventsForRange(
+    start.getFullYear(), start.getMonth(), end.getFullYear(), end.getMonth()
+  );
+  const cycles = generateCycleEvents(rangeStartIso, rangeEndIso);
+  return [...cycles, ...recurring];
+}
+
+export const CALENDAR_START = { year: 2026, month: 5 }; // June 2026 — start of cycle 1
