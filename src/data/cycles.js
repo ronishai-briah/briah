@@ -40,8 +40,13 @@ export function getAllCycles(horizonIso) {
   return [...CYCLES, ...rolling.filter((c) => !seen.has(c.id))];
 }
 
-// Builds gantt-ready events (cycle bar + registration-close marker) for every
-// cycle overlapping [rangeStartIso, rangeEndIso]. These appear on all 3 boards.
+function inRange(iso, rangeStartIso, rangeEndIso) {
+  return iso >= rangeStartIso && iso <= rangeEndIso;
+}
+
+// Builds gantt-ready events (cycle bar, registration-close marker, and the
+// staff/financial meetings anchored to each cycle's open/close) for every
+// cycle overlapping [rangeStartIso, rangeEndIso].
 export function generateCycleEvents(rangeStartIso, rangeEndIso) {
   const cycles = getAllCycles(rangeEndIso);
   const events = [];
@@ -62,7 +67,7 @@ export function generateCycleEvents(rangeStartIso, rangeEndIso) {
       ganttIds: [1, 2, 3],
     });
 
-    if (cycle.regClose && cycle.regClose >= rangeStartIso && cycle.regClose <= rangeEndIso) {
+    if (cycle.regClose && inRange(cycle.regClose, rangeStartIso, rangeEndIso)) {
       events.push({
         id: `${cycle.id}-regclose`,
         name: `סגירת הרשמה — ${cycle.name}`,
@@ -72,6 +77,44 @@ export function generateCycleEvents(rangeStartIso, rangeEndIso) {
         notes: '',
         isDefault: true,
         ganttIds: [1, 2, 3],
+      });
+    }
+
+    const prepDate = toISODate(new Date(fromISODate(cycle.start).getTime() - 7 * DAY_MS));
+    if (inRange(prepDate, rangeStartIso, rangeEndIso)) {
+      events.push({
+        id: `${cycle.id}-prep`,
+        name: `הכנה + הכשרת צוות — לקראת ${cycle.name}`,
+        date: prepDate,
+        type: 'staff',
+        owner: '',
+        notes: '',
+        isDefault: true,
+        ganttIds: [1],
+      });
+    }
+
+    if (inRange(displayEnd, rangeStartIso, rangeEndIso)) {
+      events.push({
+        id: `${cycle.id}-retro`,
+        name: `הפקת לקחים — סוף ${cycle.name}`,
+        date: displayEnd,
+        type: 'staff',
+        owner: 'רוני וניצן',
+        notes: 'יום שלם',
+        isDefault: true,
+        ganttIds: [1],
+      });
+
+      events.push({
+        id: `${cycle.id}-financial-summary`,
+        name: `פגישת סיכום מחזור — ${cycle.name}`,
+        date: displayEnd,
+        type: 'financial',
+        owner: 'רוני וניצן',
+        notes: '',
+        isDefault: true,
+        ganttIds: [3],
       });
     }
   }

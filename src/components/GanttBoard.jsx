@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { EVENT_TYPES } from '../data/eventTypes';
 import { fromISODate, daysBetween, isToday, HEBREW_MONTHS } from '../utils/dates';
 import EventModal from './EventModal';
 
 const ROW_HEIGHT = 30;
 const BAR_GAP = 4;
+const PREP_DAYS = 14;
 
 function clamp(n, min, max) {
   return Math.min(Math.max(n, min), max);
@@ -42,14 +43,15 @@ function packLanes(events, rangeStart, totalDays) {
     const rawEnd = daysBetween(rangeStart, fromISODate(ev.endDate || ev.date));
     const startIdx = clamp(rawStart, 0, totalDays - 1);
     const endIdx = clamp(Math.max(rawEnd, rawStart), 0, totalDays - 1);
-    let lane = laneEnds.findIndex((end) => end < startIdx);
+    const prepStartIdx = clamp(rawStart - PREP_DAYS, 0, totalDays - 1);
+    let lane = laneEnds.findIndex((end) => end < prepStartIdx);
     if (lane === -1) {
       lane = laneEnds.length;
       laneEnds.push(endIdx);
     } else {
       laneEnds[lane] = endIdx;
     }
-    return { ...ev, startIdx, endIdx, lane };
+    return { ...ev, startIdx, endIdx, prepStartIdx, lane };
   });
   return { positioned, laneCount: Math.max(laneEnds.length, 1) };
 }
@@ -216,40 +218,59 @@ export default function GanttBoard({
                   const spanDays = ev.endIdx - ev.startIdx + 1;
                   const width = spanDays * dayWidth - BAR_GAP;
                   const isMilestone = width < 56;
+                  const prepWidth = (ev.startIdx - ev.prepStartIdx) * dayWidth;
+                  const prepEl = prepWidth > 1 ? (
+                    <div
+                      key={`${ev.id}-prep`}
+                      className="gantt-prep"
+                      style={{
+                        right: ev.prepStartIdx * dayWidth,
+                        width: prepWidth - BAR_GAP / 2,
+                        top: ev.lane * ROW_HEIGHT + 11,
+                        background: EVENT_TYPES[ev.type].bg,
+                      }}
+                      title={`הכנה ל"${ev.name}" — מתחילה ${PREP_DAYS} יום לפני`}
+                    />
+                  ) : null;
+
                   if (isMilestone) {
                     const center = ev.startIdx * dayWidth + (spanDays * dayWidth) / 2;
                     return (
-                      <button
-                        key={ev.id}
-                        className="gantt-milestone"
-                        style={{
-                          right: center - 6,
-                          top: ev.lane * ROW_HEIGHT + 9,
-                          background: EVENT_TYPES[ev.type].color,
-                        }}
-                        onClick={() => setSelected(ev)}
-                        title={ev.name}
-                        aria-label={ev.name}
-                      />
+                      <Fragment key={ev.id}>
+                        {prepEl}
+                        <button
+                          className="gantt-milestone"
+                          style={{
+                            right: center - 6,
+                            top: ev.lane * ROW_HEIGHT + 9,
+                            background: EVENT_TYPES[ev.type].color,
+                          }}
+                          onClick={() => setSelected(ev)}
+                          title={ev.name}
+                          aria-label={ev.name}
+                        />
+                      </Fragment>
                     );
                   }
                   return (
-                    <button
-                      key={ev.id}
-                      className="gantt-bar"
-                      style={{
-                        right: ev.startIdx * dayWidth + BAR_GAP / 2,
-                        width: Math.max(width, 6),
-                        top: ev.lane * ROW_HEIGHT + 3,
-                        background: EVENT_TYPES[ev.type].bg,
-                        color: EVENT_TYPES[ev.type].color,
-                        borderColor: EVENT_TYPES[ev.type].color,
-                      }}
-                      onClick={() => setSelected(ev)}
-                      title={ev.name}
-                    >
-                      {ev.name}
-                    </button>
+                    <Fragment key={ev.id}>
+                      {prepEl}
+                      <button
+                        className="gantt-bar"
+                        style={{
+                          right: ev.startIdx * dayWidth + BAR_GAP / 2,
+                          width: Math.max(width, 6),
+                          top: ev.lane * ROW_HEIGHT + 3,
+                          background: EVENT_TYPES[ev.type].bg,
+                          color: EVENT_TYPES[ev.type].color,
+                          borderColor: EVENT_TYPES[ev.type].color,
+                        }}
+                        onClick={() => setSelected(ev)}
+                        title={ev.name}
+                      >
+                        {ev.name}
+                      </button>
+                    </Fragment>
                   );
                 })}
               </div>
