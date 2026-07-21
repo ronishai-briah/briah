@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState } from 'react';
 import { EVENT_TYPES } from '../data/eventTypes';
-import { fromISODate, daysBetween, isToday, HEBREW_MONTHS } from '../utils/dates';
+import { fromISODate, daysBetween, isToday, HEBREW_MONTHS, HEBREW_WEEKDAYS_SHORT } from '../utils/dates';
 import EventModal from './EventModal';
 
 const ROW_HEIGHT = 30;
@@ -185,7 +185,12 @@ export default function GanttBoard({
                       className={`gantt-day-cell ${weekend ? 'weekend' : ''} ${isToday(d) ? 'today' : ''}`}
                       style={{ width: dayWidth }}
                     >
-                      {dayWidth >= 16 ? d.getDate() : ''}
+                      {dayWidth >= 16 && (
+                        <>
+                          <span className="gantt-day-num">{d.getDate()}</span>
+                          <span className="gantt-day-wd">{HEBREW_WEEKDAYS_SHORT[d.getDay()]}</span>
+                        </>
+                      )}
                     </div>
                   );
                 })}
