@@ -447,10 +447,24 @@ body {
 .gantt-prep {
   position: absolute;
   z-index: 0;
-  height: 8px;
-  border-radius: 4px;
-  pointer-events: none;
-  opacity: 0.75;
+  height: 22px;
+  border-radius: 7px;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: start;
+  opacity: 0.7;
+  transition: opacity 0.1s;
+}
+
+.gantt-prep:hover {
+  opacity: 0.95;
 }
 
 .gantt-bar:hover {
