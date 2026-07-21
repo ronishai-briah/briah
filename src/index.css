@@ -639,3 +639,111 @@ body {
   text-align: center;
   padding: 12px 0;
 }
+
+/* mobile */
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .app {
+    padding: 16px 12px 40px;
+  }
+
+  .brand-text h1 {
+    font-size: 22px;
+  }
+
+  .app-subtitle {
+    font-size: 12px;
+  }
+
+  .app-main {
+    padding: 12px;
+  }
+
+  .tabs {
+    display: flex;
+    width: 100%;
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 9px 6px;
+    font-size: 12px;
+  }
+
+  .gantt-board-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gantt-board-head .btn-primary {
+    width: 100%;
+  }
+
+  .gantt-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gantt-nav {
+    justify-content: space-between;
+  }
+
+  .gantt-nav h2 {
+    min-width: 0;
+    font-size: 15px;
+  }
+
+  .gantt-toolbar-actions {
+    justify-content: space-between;
+  }
+
+  .gantt-toolbar-actions select {
+    flex: 1;
+  }
+
+  .legend {
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .legend-toggle {
+    padding: 5px 9px;
+    font-size: 12px;
+  }
+
+  .gantt-sidebar {
+    width: 92px;
+  }
+
+  .gantt-row-label {
+    padding: 0 6px;
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .gantt-row-label span:not(.dot):not(.gantt-row-count) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .gantt-row-count {
+    font-size: 10px;
+  }
+
+  .gantt-milestone {
+    width: 15px;
+    height: 15px;
+  }
+
+  .modal-card {
+    padding: 16px;
+  }
+
+  .modal-title {
+    font-size: 17px;
+  }
+}
