@@ -220,17 +220,21 @@ export default function GanttBoard({
                   const isMilestone = width < 56;
                   const prepWidth = (ev.startIdx - ev.prepStartIdx) * dayWidth;
                   const prepEl = prepWidth > 1 ? (
-                    <div
+                    <button
                       key={`${ev.id}-prep`}
                       className="gantt-prep"
                       style={{
                         right: ev.prepStartIdx * dayWidth,
                         width: prepWidth - BAR_GAP / 2,
-                        top: ev.lane * ROW_HEIGHT + 11,
+                        top: ev.lane * ROW_HEIGHT + 3,
                         background: EVENT_TYPES[ev.type].bg,
+                        color: EVENT_TYPES[ev.type].color,
                       }}
+                      onClick={() => setSelected(ev)}
                       title={`הכנה ל"${ev.name}" — מתחילה ${PREP_DAYS} יום לפני`}
-                    />
+                    >
+                      {ev.name}
+                    </button>
                   ) : null;
 
                   if (isMilestone) {
