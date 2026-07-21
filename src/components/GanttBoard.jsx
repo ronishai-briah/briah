@@ -35,6 +35,12 @@ function buildMonthSegments(days, dayWidth) {
   return segments.map((s) => ({ ...s, width: s.count * dayWidth }));
 }
 
+// Workshops/programming from the monthly community schedule are just
+// calendar listings, not tasks that need lead time — so they get no prep runway.
+function prepDaysFor(ev) {
+  return ev.type === 'community' ? 0 : PREP_DAYS;
+}
+
 function packLanes(events, rangeStart, totalDays) {
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
   const laneEnds = [];
@@ -43,7 +49,8 @@ function packLanes(events, rangeStart, totalDays) {
     const rawEnd = daysBetween(rangeStart, fromISODate(ev.endDate || ev.date));
     const startIdx = clamp(rawStart, 0, totalDays - 1);
     const endIdx = clamp(Math.max(rawEnd, rawStart), 0, totalDays - 1);
-    const prepStartIdx = clamp(rawStart - PREP_DAYS, 0, totalDays - 1);
+    const prepDays = prepDaysFor(ev);
+    const prepStartIdx = clamp(rawStart - prepDays, 0, totalDays - 1);
     let lane = laneEnds.findIndex((end) => end < prepStartIdx);
     if (lane === -1) {
       lane = laneEnds.length;
@@ -51,7 +58,7 @@ function packLanes(events, rangeStart, totalDays) {
     } else {
       laneEnds[lane] = endIdx;
     }
-    return { ...ev, startIdx, endIdx, prepStartIdx, lane };
+    return { ...ev, startIdx, endIdx, prepStartIdx, prepDays, lane };
   });
   return { positioned, laneCount: Math.max(laneEnds.length, 1) };
 }
@@ -236,7 +243,7 @@ export default function GanttBoard({
                         color: EVENT_TYPES[ev.type].color,
                       }}
                       onClick={() => setSelected(ev)}
-                      title={`הכנה ל"${ev.name}" — מתחילה ${PREP_DAYS} יום לפני`}
+                      title={`הכנה ל"${ev.name}" — מתחילה ${ev.prepDays} יום לפני`}
                     >
                       {ev.name}
                     </button>
