@@ -16,6 +16,27 @@ const HOLIDAYS = [
   { id: 'h-hanukkah-2026', name: 'חנוכה', start: '2026-12-14', end: '2026-12-22' },
 ];
 
+// The real, community-supplied schedule for August 2026 (לוז חודש אוגוסט).
+// Weekly יוגה is handled by the recurring rule above; everything else here
+// is the specific one-off programming for the month.
+const STATIC_COMMUNITY_EVENTS = [
+  { id: 'aug26-04', name: 'ECSTATIC BRIAH', date: '2026-08-04', owner: 'DJ יערה ראוף', notes: '20:30–22:00' },
+  { id: 'aug26-06', name: 'סאונד הילינג', date: '2026-08-06', owner: 'דודן', notes: '20:00–21:30' },
+  { id: 'aug26-07', name: 'מדיטציה ונשימה מודעת', date: '2026-08-07', owner: 'עינב ומאיר', notes: '13:00–15:00' },
+  { id: 'aug26-09', name: 'ריברסינג', date: '2026-08-09', owner: 'ניצן פהימה', notes: '20:00–22:30' },
+  { id: 'aug26-11', name: 'ביטוי קולי', date: '2026-08-11', owner: 'רוני שי', notes: '20:30–22:00' },
+  { id: 'aug26-12', name: 'ערב פתוח', date: '2026-08-12', owner: 'בואו להכיר אותנו :)', notes: '20:30–22:00' },
+  { id: 'aug26-13', name: 'דמיון מודרך וכלים לריפוי עצמי', date: '2026-08-13', owner: 'תומר זבולון', notes: '20:00–21:30' },
+  { id: 'aug26-16', name: 'מעגל בריאה', date: '2026-08-16', owner: 'צוות', notes: '20:30–22:00' },
+  { id: 'aug26-18', name: 'ערב פתוח', date: '2026-08-18', owner: 'בואו להכיר אותנו :)', notes: '20:30–22:00' },
+  { id: 'aug26-19', name: 'ביטוי קולי', date: '2026-08-19', owner: 'רוני שי', notes: '20:30–22:00' },
+  { id: 'aug26-20', name: 'סאונד הילינג', date: '2026-08-20', owner: 'דודן', notes: '20:00–21:30' },
+  { id: 'aug26-23', name: 'הרצאת אורח וערב קהילה', date: '2026-08-23', owner: 'בסטודיו | ניצן פרי', notes: '19:30–21:30' },
+  { id: 'aug26-25', name: 'מסע נשימה וצלילים מרפאים', date: '2026-08-25', owner: 'עופרי', notes: '20:30–22:00' },
+  { id: 'aug26-26', name: 'ערב פתוח', date: '2026-08-26', owner: 'בואו להכיר אותנו :)', notes: '20:30–22:00' },
+  { id: 'aug26-28', name: 'ריברסינג', date: '2026-08-28', owner: 'ניצן פהימה', notes: '12:30–14:30' },
+];
+
 function makeEvent({ id, name, date, endDate, type, ganttIds, owner, notes }) {
   return {
     id,
@@ -53,13 +74,14 @@ export function generateRecurringEventsForMonth(year, month) {
     ganttIds: [3],
   }));
 
-  for (const d of allWeekdaysInMonth(year, month, 2)) { // Tuesday
+  for (const d of allWeekdaysInMonth(year, month, 1)) { // Monday
     events.push(makeEvent({
       id: `yoga-${toISODate(d)}`,
-      name: 'יוגה שבועית',
+      name: 'יוגה סומטית ושירה מרפאת',
       date: d,
       type: 'community',
       ganttIds: [1],
+      owner: 'רוני שי',
     }));
   }
 
@@ -71,17 +93,6 @@ export function generateRecurringEventsForMonth(year, month) {
       type: 'community',
       ganttIds: [1],
       owner: 'מלווה',
-    }));
-  }
-
-  const wellnessCircle = nthWeekdayOfMonth(year, month, 3, 2); // 2nd Wednesday
-  if (wellnessCircle) {
-    events.push(makeEvent({
-      id: `wellness-circle-${year}-${month}`,
-      name: 'מעגל בריאה',
-      date: wellnessCircle,
-      type: 'community',
-      ganttIds: [1],
     }));
   }
 
@@ -277,6 +288,21 @@ export function generateRecurringEventsForMonth(year, month) {
         ganttIds: [1],
         owner: '',
         notes: '',
+        isDefault: true,
+      });
+    }
+  }
+
+  for (const ev of STATIC_COMMUNITY_EVENTS) {
+    if (ev.date >= monthStart && ev.date <= monthEnd) {
+      events.push({
+        id: ev.id,
+        name: ev.name,
+        date: ev.date,
+        type: 'community',
+        ganttIds: [1],
+        owner: ev.owner,
+        notes: ev.notes,
         isDefault: true,
       });
     }
