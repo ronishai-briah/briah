@@ -35,10 +35,10 @@ function buildMonthSegments(days, dayWidth) {
   return segments.map((s) => ({ ...s, width: s.count * dayWidth }));
 }
 
-// Workshops/programming from the monthly community schedule are just
-// calendar listings, not tasks that need lead time — so they get no prep runway.
+// Workshops/programming from the monthly community schedule and birthdays are
+// just calendar listings, not tasks that need lead time — no prep runway.
 function prepDaysFor(ev) {
-  return ev.type === 'community' ? 0 : PREP_DAYS;
+  return ev.type === 'community' || ev.type === 'birthday' ? 0 : PREP_DAYS;
 }
 
 function packLanes(events, rangeStart, totalDays) {

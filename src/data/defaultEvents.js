@@ -7,6 +7,7 @@ import {
   DAY_MS,
 } from '../utils/dates';
 import { generateCycleEvents } from './cycles';
+import { generateBirthdayEvents } from './birthdays';
 
 // Weekday indices below match Date#getDay(): 0=Sunday ... 6=Saturday
 
@@ -338,7 +339,8 @@ export function generateEventsForRange(rangeStartIso, rangeEndIso) {
     start.getFullYear(), start.getMonth(), end.getFullYear(), end.getMonth()
   );
   const cycles = generateCycleEvents(rangeStartIso, rangeEndIso);
-  return [...cycles, ...recurring];
+  const birthdays = generateBirthdayEvents(rangeStartIso, rangeEndIso);
+  return [...cycles, ...recurring, ...birthdays];
 }
 
 export const CALENDAR_START = { year: 2026, month: 5 }; // June 2026 — start of cycle 1

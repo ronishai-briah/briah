@@ -6,6 +6,7 @@ export const EVENT_TYPES = {
   holiday: { label: 'חג', color: '#A8391F', bg: '#F1DAD1' },
   marketing: { label: 'שיווק', color: '#3E8A82', bg: '#DBEBE8' },
   financial: { label: 'כלכלה', color: '#B8862E', bg: '#F1E5CB' },
+  birthday: { label: 'יום הולדת', color: '#B5527A', bg: '#F3DCE6' },
 };
 
 // GANTTS defines the three boards and which event types appear (as rows) on each.
@@ -29,6 +30,12 @@ export const GANTTS = [
     label: 'כלכלי',
     subtitle: 'יעדים, הוצאות והכנסות לפי מחזור',
     types: ['cycle', 'financial', 'special'],
+  },
+  {
+    id: 4,
+    label: 'ימי הולדת',
+    subtitle: 'כל ימי ההולדת של הצוות והמטופלים, כל שנה',
+    types: ['birthday'],
   },
 ];
 
