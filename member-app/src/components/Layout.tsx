@@ -34,9 +34,9 @@ export default function Layout({ children }: { children: ReactNode }) {
             דיווח ותנאי העסקה
           </NavLink>
         )}
-        {isOwner(user) && (
+        {hasRole(user, 'finance') && (
           <NavLink to="/owner" className={({ isActive }) => (isActive ? 'active' : '')}>
-            ניהול (רוני/ניצן)
+            ניהול (תנאי העסקה ותשלומים)
           </NavLink>
         )}
       </nav>

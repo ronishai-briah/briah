@@ -8,7 +8,9 @@
 
 create extension if not exists "pgcrypto";
 
-create type app_role as enum ('owner', 'melave', 'matargel', 'workshop_facilitator');
+-- 'finance': שכבה נוספת מעל owner, מוחזקת רק ע"י רוני (תנאי העסקה/תשלומים/מסמכים).
+-- 'owner' בלי 'finance' = בפועל ניצן (רואה סיכומי מתרגל, לא רואה תנאי העסקה/תשלומים).
+create type app_role as enum ('owner', 'finance', 'melave', 'matargel', 'workshop_facilitator');
 create type membership_track as enum ('anchor', 'growth', 'deepening');
 create type chevra_status as enum ('active', 'paused', 'ended');
 create type session_type as enum (
@@ -43,6 +45,16 @@ security definer
 set search_path = public
 as $$
   select coalesce((select check_role = any(roles) from profiles where id = auth.uid()), false);
+$$;
+
+create or replace function has_finance()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select has_role('finance');
 $$;
 
 create or replace function is_owner()
@@ -266,10 +278,10 @@ create policy notes_insert on notes for insert
     and chevra_id in (select visible_chevra_ids())
   );
 
--- matargel_summaries: Owner + הכותב/ת בלבד (בהתאם ל-permissions-model.md: "לא לרוני אלא אם ניצן משתפת" -
--- במימוש הזה "Owner" מכסה גם את רוני וגם את ניצן; אם רוצים להבדיל ביניהן צריך role נפרד, ראו open-questions.md).
+-- matargel_summaries: ניצן (owner בלי finance) + הכותב/ת בלבד. לא רוני, בהתאם ל-permissions-model.md
+-- כלל #3 ("לא לרוני אלא אם ניצן משתפת") - שיתוף מפורש עם רוני על סיכום ספציפי טרם ממומש.
 create policy matargel_summaries_select on matargel_summaries for select
-  using (is_owner() or matargel_id = auth.uid());
+  using ((is_owner() and not has_finance()) or matargel_id = auth.uid());
 create policy matargel_summaries_insert on matargel_summaries for insert
   with check (matargel_id = auth.uid() and has_role('matargel'));
 
@@ -280,22 +292,23 @@ create policy personal_plans_write on personal_plans for all
   using (is_owner() or chevra_id in (select visible_chevra_ids()))
   with check (is_owner() or chevra_id in (select visible_chevra_ids()));
 
--- practitioner_agreements: Owner עורך/רואה הכל; המתרגל/ת רואה קריאה בלבד את שלו/ה.
+-- practitioner_agreements: רק מי שמחזיק/ה 'finance' (רוני) עורך/ת ורואה הכל; המתרגל/ת רואה
+-- קריאה בלבד את שלו/ה; ניצן לא רואה (אלא אם רוני משתפת - טרם ממומש).
 create policy agreements_select on practitioner_agreements for select
-  using (is_owner() or practitioner_id = auth.uid());
+  using (has_finance() or practitioner_id = auth.uid());
 create policy agreements_write_owner on practitioner_agreements for all
-  using (is_owner()) with check (is_owner());
+  using (has_finance()) with check (has_finance());
 
--- practitioner_submissions: המתרגל/ת יוצר/ת ורואה רק את שלו/ה; Owner רואה/מסמן הכל.
+-- practitioner_submissions: המתרגל/ת יוצר/ת ורואה רק את שלו/ה; רק 'finance' רואה/מסמן הכל.
 create policy submissions_select on practitioner_submissions for select
-  using (is_owner() or practitioner_id = auth.uid());
+  using (has_finance() or practitioner_id = auth.uid());
 create policy submissions_insert on practitioner_submissions for insert
   with check (practitioner_id = auth.uid() and (has_role('matargel') or has_role('workshop_facilitator')));
 create policy submissions_update_owner on practitioner_submissions for update
-  using (is_owner());
+  using (has_finance());
 
--- documents: Owner בלבד כברירת מחדל; מתרגל/ת רואה מסמכים המקושרים אליו/ה בלבד.
+-- documents: 'finance' בלבד כברירת מחדל; מתרגל/ת רואה מסמכים המקושרים אליו/ה בלבד.
 create policy documents_select on documents for select
-  using (is_owner() or (linked_to_type = 'practitioner' and linked_to_id = auth.uid()));
+  using (has_finance() or (linked_to_type = 'practitioner' and linked_to_id = auth.uid()));
 create policy documents_write_owner on documents for all
-  using (is_owner()) with check (is_owner());
+  using (has_finance()) with check (has_finance());

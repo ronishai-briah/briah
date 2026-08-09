@@ -12,13 +12,23 @@ const daysAgo = (n: number) => {
 export function buildSeedData(): AppData {
   return {
     users: [
-      { id: 'roni', name: 'רוני שי', email: 'roni@briah.me', roles: ['owner'] },
+      // מייסדות. רק רוני מחזיקה 'finance' (תנאי העסקה/תשלומים/מסמכים) — ניצן Owner "רגיל" בלבד.
+      { id: 'roni', name: 'רוני שי', email: 'roni@briah.me', roles: ['owner', 'finance'] },
       { id: 'nitzan', name: 'ניצן פהימה', email: 'nitzan@briah.me', roles: ['owner', 'melave', 'workshop_facilitator'] },
-      { id: 'maor', name: 'מאור שריקי', email: 'maor@briah.me', roles: ['melave'] },
-      { id: 'shachar', name: 'שחר זיו-אור', email: 'shachar@briah.me', roles: ['melave'] },
+      // עינב רביב היא מייסדת שותפה (CMO) גם כן, אבל לא הוגדר לה role owner/finance באפליקציה —
+      // לבדוק מול רוני אם רוצים לתת לה גישת-על, כרגע רק תפקידה כמנחת סדנה (מדיטציה).
+      { id: 'einav', name: 'עינב רביב', email: 'einav@briah.me', roles: ['workshop_facilitator'] },
+      // מלווים
+      { id: 'meir', name: 'מאיר שריקי', email: 'meir@briah.me', roles: ['melave'] },
+      { id: 'shachar', name: 'שחר זיו אור', email: 'shachar@briah.me', roles: ['melave'] },
+      // קולקטיב מטפלים 1:1
       { id: 'ofri', name: 'עופרי שירן', email: 'ofri@briah.me', roles: ['matargel'] },
       { id: 'tomer', name: 'תומר זבולון', email: 'tomer@briah.me', roles: ['matargel'] },
+      { id: 'inbar', name: 'ענבר עזרי חפר', email: 'inbar@briah.me', roles: ['matargel'] },
+      { id: 'dana', name: 'דנה טמיר', email: 'dana@briah.me', roles: ['matargel'] },
+      // קולקטיב מנחי סדנאות קבוצתיות
       { id: 'yaara', name: 'יערה ראוף', email: 'yaara@briah.me', roles: ['workshop_facilitator'] },
+      { id: 'dandan', name: 'דן דן', email: 'dandan@briah.me', roles: ['workshop_facilitator'] },
     ],
     chevrot: [
       {
@@ -27,7 +37,7 @@ export function buildSeedData(): AppData {
         phone: '050-0000001',
         track: 'growth',
         cycleId: 'cycle2',
-        melaveId: 'maor',
+        melaveId: 'meir',
         joinedAt: daysAgo(60),
         status: 'active',
       },
@@ -37,7 +47,7 @@ export function buildSeedData(): AppData {
         phone: '050-0000002',
         track: 'anchor',
         cycleId: 'cycle2',
-        melaveId: 'maor',
+        melaveId: 'meir',
         joinedAt: daysAgo(10),
         status: 'active',
       },
@@ -89,7 +99,7 @@ export function buildSeedData(): AppData {
       {
         id: 'n1',
         chevraId: 'c1',
-        authorId: 'maor',
+        authorId: 'meir',
         content: 'פגישת מלווה ראשונה — בנינו יחד תוכנית סביב רובד הקרקוע והאינטגרציה.',
         visibility: 'team_wide',
         sharedWith: [],
@@ -99,7 +109,7 @@ export function buildSeedData(): AppData {
       {
         id: 'n2',
         chevraId: 'c1',
-        authorId: 'maor',
+        authorId: 'meir',
         content: 'שיחה אישית שעלתה בפגישה — נשארת בינינו כרגע.',
         visibility: 'limited',
         sharedWith: ['nitzan'],

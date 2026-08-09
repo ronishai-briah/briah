@@ -150,8 +150,14 @@ function PaymentRow({ submissionId }: { submissionId: string }) {
 
 export default function OwnerAdmin() {
   const { data } = useData()
+  const { currentUserId } = useAuth()
+  const user = data.users.find((u) => u.id === currentUserId)!
   const practitioners = data.users.filter((u) => hasRole(u, 'matargel') || hasRole(u, 'workshop_facilitator'))
   const submissions = data.submissions.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+
+  if (!hasRole(user, 'finance')) {
+    return <p>המסך הזה (תנאי העסקה ותשלומים) חשוף רק לרוני.</p>
+  }
 
   return (
     <div>

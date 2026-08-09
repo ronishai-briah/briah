@@ -1,7 +1,10 @@
 // ישויות המודל, לפי docs/briah-app/data-model.md ו-permissions-model.md.
 // כל שינוי כאן צריך להישאר תואם למסמכים האלה (או לעדכן אותם יחד).
 
-export type Role = 'owner' | 'melave' | 'matargel' | 'workshop_facilitator'
+// 'owner': גישת-על טיפולית/צוותית (רוני + ניצן). 'finance': שכבה נוספת מעל owner,
+// מוחזקת רק ע"י רוני — תנאי העסקה, סטטוס תשלום ומסמכים כלליים, ראו permissions-model.md
+// ("ניצן: הכל מלבד תנאי העסקה/תשלומים, אלא אם רוני משתפת").
+export type Role = 'owner' | 'finance' | 'melave' | 'matargel' | 'workshop_facilitator'
 
 export interface User {
   id: string

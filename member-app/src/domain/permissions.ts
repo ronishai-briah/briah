@@ -12,9 +12,9 @@ export function isOwner(user: User): boolean {
   return hasRole(user, 'owner')
 }
 
-/** "רואה כספים" — רק Owner (רוני/ניצן). */
+/** "רואה כספים" — רק מי שמחזיק/ה role 'finance' (בפועל: רוני בלבד, לא ניצן). */
 export function canViewFinance(user: User): boolean {
-  return isOwner(user)
+  return hasRole(user, 'finance')
 }
 
 /** "רואה את כל החברות" — רק Owner. כולם האחרים רואים תת-קבוצה (visibleChevraIds). */
@@ -94,31 +94,41 @@ export function canViewNote(user: User, note: Note): boolean {
   return note.sharedWith.includes(user.id)
 }
 
-/** סיכום מפגש מתרגל — נראה כברירת מחדל רק לניצן (Owner) ולכותב/ת עצמו/ה. */
+/**
+ * סיכום מפגש מתרגל — נראה כברירת מחדל רק לניצן ולכותב/ת עצמו/ה, לא לרוני
+ * ("לא לרוני אלא אם ניצן משתפת" — permissions-model.md כלל #3). באפליקציה הזו, ניצן
+ * היא ה-owner שאינו/ה מחזיק/ה 'finance' — ז"א owner-בלי-finance = בפועל ניצן.
+ * שיתוף מפורש של ניצן עם רוני על סיכום ספציפי עדיין לא ממומש (אין עדיין שדה shared_with
+ * ב-MatargelSummary).
+ */
 export function canViewMatargelSummary(user: User, summaryMatargelId: string): boolean {
-  return isOwner(user) || summaryMatargelId === user.id
+  if (summaryMatargelId === user.id) return true
+  return isOwner(user) && !hasRole(user, 'finance')
 }
 
 export function canWriteMatargelSummary(user: User): boolean {
   return hasRole(user, 'matargel')
 }
 
-/** תנאי העסקה: רק Owner עורך/ת; המתרגל/ת רואה רק את שלו/ה, קריאה בלבד; אף אחד אחר לא. */
+/**
+ * תנאי העסקה — רק מי שמחזיק/ה 'finance' (רוני) עורך/ת ורואה את כולם; המתרגל/ת רואה רק
+ * את שלו/ה, קריאה בלבד; אף אחד אחר (כולל ניצן, אלא אם רוני משתפת) לא רואה.
+ */
 export function canEditAgreement(user: User): boolean {
-  return isOwner(user)
+  return hasRole(user, 'finance')
 }
 
 export function canViewAgreement(user: User, agreement: PractitionerAgreement): boolean {
-  return isOwner(user) || agreement.practitionerId === user.id
+  return hasRole(user, 'finance') || agreement.practitionerId === user.id
 }
 
-/** דיווח חודשי: מתרגל/מנחה יוצר/ת ורואה רק את שלו/ה; Owner רואה הכל ומסמן/ת תשלום. */
+/** דיווח חודשי: מתרגל/מנחה יוצר/ת ורואה רק את שלו/ה; 'finance' רואה הכל ומסמן/ת תשלום. */
 export function canCreateSubmission(user: User): boolean {
   return hasRole(user, 'matargel') || hasRole(user, 'workshop_facilitator')
 }
 
 export function canViewSubmission(user: User, submission: PractitionerSubmission): boolean {
-  return isOwner(user) || submission.practitionerId === user.id
+  return hasRole(user, 'finance') || submission.practitionerId === user.id
 }
 
 export function canEditSubmission(user: User, submission: PractitionerSubmission): boolean {
@@ -126,12 +136,12 @@ export function canEditSubmission(user: User, submission: PractitionerSubmission
 }
 
 export function canMarkPayment(user: User): boolean {
-  return isOwner(user)
+  return hasRole(user, 'finance')
 }
 
-/** מסמכים כלליים — Owner בלבד כברירת מחדל; מתרגל/ת רואה מסמכים המשויכים אליו/ה בלבד. */
+/** מסמכים כלליים — 'finance' בלבד כברירת מחדל; מתרגל/ת רואה מסמכים המשויכים אליו/ה בלבד. */
 export function canUploadDocument(user: User): boolean {
-  return isOwner(user)
+  return hasRole(user, 'finance')
 }
 
 export function needsAttention(chevra: Chevra, notes: Note[], now: Date = new Date()): boolean {

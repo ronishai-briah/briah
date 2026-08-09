@@ -15,7 +15,10 @@ import {
 } from './permissions'
 import type { AppData, Note, User } from './types'
 
-const owner: User = { id: 'roni', name: 'רוני', email: 'roni@briah.me', roles: ['owner'] }
+// owner בלי finance = בפועל ניצן (רואה הכל חוץ מתנאי העסקה/תשלומים/סיכומי מתרגל).
+const owner: User = { id: 'nitzan', name: 'ניצן', email: 'nitzan@briah.me', roles: ['owner'] }
+// owner + finance = בפועל רוני (רואה גם תנאי העסקה/תשלומים, לא רואה סיכומי מתרגל כברירת מחדל).
+const financeOwner: User = { id: 'roni', name: 'רוני', email: 'roni@briah.me', roles: ['owner', 'finance'] }
 const melave: User = { id: 'maor', name: 'מאור', email: 'maor@briah.me', roles: ['melave'] }
 const matargel: User = { id: 'ofri', name: 'עופרי', email: 'ofri@briah.me', roles: ['matargel'] }
 const facilitator: User = {
@@ -26,7 +29,7 @@ const facilitator: User = {
 }
 
 const data: AppData = {
-  users: [owner, melave, matargel, facilitator],
+  users: [owner, financeOwner, melave, matargel, facilitator],
   chevrot: [
     {
       id: 'c1',
@@ -75,10 +78,15 @@ const data: AppData = {
 }
 
 describe('finance & scope', () => {
-  it('only owner sees finance and all chevrot', () => {
-    expect(canViewFinance(owner)).toBe(true)
+  it('only the finance-holding owner (Roni) sees finance; plain owner (Nitzan) does not', () => {
+    expect(canViewFinance(financeOwner)).toBe(true)
+    expect(canViewFinance(owner)).toBe(false)
     expect(canViewFinance(melave)).toBe(false)
+  })
+
+  it('both owner and finance-owner see all chevrot (clinical visibility is not finance-gated)', () => {
     expect(canViewAllChevrot(owner)).toBe(true)
+    expect(canViewAllChevrot(financeOwner)).toBe(true)
     expect(canViewAllChevrot(matargel)).toBe(false)
   })
 
@@ -174,10 +182,11 @@ describe('note visibility toggle', () => {
   })
 })
 
-describe('matargel summaries — visible only to owner + author', () => {
-  it('gates by owner-or-self', () => {
-    expect(canViewMatargelSummary(owner, 'ofri')).toBe(true)
-    expect(canViewMatargelSummary(matargel, 'ofri')).toBe(true)
+describe('matargel summaries — visible to Nitzan (owner without finance) + author, not Roni', () => {
+  it('gates by clinical-owner-or-self, excluding the finance owner', () => {
+    expect(canViewMatargelSummary(owner, 'ofri')).toBe(true) // ניצן
+    expect(canViewMatargelSummary(financeOwner, 'ofri')).toBe(false) // רוני — לא כברירת מחדל
+    expect(canViewMatargelSummary(matargel, 'ofri')).toBe(true) // הכותב עצמו
     expect(canViewMatargelSummary(melave, 'ofri')).toBe(false)
     expect(canViewMatargelSummary(facilitator, 'ofri')).toBe(false)
   })
@@ -196,13 +205,15 @@ describe('practitioner agreements — owner edits, practitioner reads own only',
     notes: '',
   }
 
-  it('owner can edit; nobody else can', () => {
-    expect(canEditAgreement(owner)).toBe(true)
+  it('only the finance owner (Roni) can edit — not plain owner (Nitzan), not anyone else', () => {
+    expect(canEditAgreement(financeOwner)).toBe(true)
+    expect(canEditAgreement(owner)).toBe(false)
     expect(canEditAgreement(matargel)).toBe(false)
   })
 
-  it('only owner and the practitioner themself can view it', () => {
-    expect(canViewAgreement(owner, agreement)).toBe(true)
+  it('only the finance owner and the practitioner themself can view it — Nitzan cannot', () => {
+    expect(canViewAgreement(financeOwner, agreement)).toBe(true)
+    expect(canViewAgreement(owner, agreement)).toBe(false)
     expect(canViewAgreement(matargel, agreement)).toBe(true) // ofri === matargel.id
     expect(canViewAgreement(melave, agreement)).toBe(false)
     expect(canViewAgreement(facilitator, agreement)).toBe(false)
@@ -216,8 +227,9 @@ describe('practitioner monthly submissions & payment marking', () => {
     expect(canCreateSubmission(melave)).toBe(false)
   })
 
-  it('only owner marks payment status', () => {
-    expect(canMarkPayment(owner)).toBe(true)
+  it('only the finance owner (Roni) marks payment status — not plain owner (Nitzan)', () => {
+    expect(canMarkPayment(financeOwner)).toBe(true)
+    expect(canMarkPayment(owner)).toBe(false)
     expect(canMarkPayment(matargel)).toBe(false)
   })
 })
