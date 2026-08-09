@@ -38,7 +38,7 @@ npm run build
 | התחברות (Auth) | "בחר/י מי את/ה" — כל אחד יכול להתחזות לכל משתמש/ת | חיבור Supabase Auth אמיתי (מייל+סיסמה/מג'יק לינק) |
 | שמירת נתונים | `localStorage` בדפדפן בלבד — כל מכשיר/דפדפן רואה עותק אחר, שום דבר לא משותף בין אנשי צוות בפועל | חיבור ל-Supabase Postgres (הסכמה כבר כתובה, `supabase/migrations/0001_init.sql`) |
 | קבצים/קבלות | נשמרים כ-base64 בתוך ה-localStorage — לא בר-קיימא, לא מתאים לקבצים גדולים | Supabase Storage |
-| ארבוקס | **לא מחובר בכלל** — אין עדיין מסך בית, לוז, סטטוס מנוי (P0 #1-2) | מפתח API מארבוקס (ראו `docs/briah-app/arbox-integration.md`) + adapter שממפה את ה-endpoints ל-`AppData` |
+| ארבוקס | **Adapter קיים** (`src/integrations/arbox/`) עם מימוש מוק פעיל, אבל שום מסך עדיין לא משתמש בו, ואין עדיין חיבור אמיתי מבוצע (ראו "חיבור ארבוקס" למטה) | לחבר בפועל דרך Edge Function + לבנות את מסך הבית/הלוז שישתמשו ב-adapter |
 | כתיבה למלווה (חברה → מלווה) | לא נבנה עדיין (P0 #3) | תלוי בהחלטה על מסך "חברה" עצמו — עדיין persona עתידית לפי הבריף |
 | טופסי הסכמה | לא נבנו | תוכן משפטי מיולה (ראו open questions ב-`docs/briah-app/dev-brief.md`) |
 | נתונים בדמו | שמות עובדים אמיתיים (מהבריף) אבל **כל התוכן שלהם בדוי** — אין נתון אמיתי אחד על אף חברה | להחליף לגמרי לפני production |
@@ -57,6 +57,19 @@ src/
 supabase/
   migrations/0001_init.sql   סכמת Postgres + RLS, טרם הורצה מול פרויקט אמיתי
 ```
+
+## חיבור ארבוקס
+
+`src/integrations/arbox/` מכיל את שכבת ההפשטה מול ארבוקס (P0 #1), בנויה כך שאף מסך לא צריך לדעת אם המידע אמיתי או מדומה:
+
+- `ArboxClient.ts` — הממשק (`getMembershipStatus`, `getWeeklySchedule`, `createLead`).
+- `mockArboxClient.ts` — מימוש דמו, בשימוש היום. יש לו בדיקות (`mockArboxClient.test.ts`).
+- `httpArboxClient.ts` + `supabase/functions/arbox-proxy/` — מימוש אמיתי, **טרם נבדק בפועל**.
+- `getArboxClient()` ב-`index.ts` בוחר אוטומטית בין השניים לפי אם יש `VITE_SUPABASE_FUNCTIONS_URL`/`VITE_SUPABASE_ANON_KEY` מוגדרים.
+
+**חשוב לגבי אבטחה:** מפתח ה-API של ארבוקס נותן הרשאת כתיבה (כמו יצירת לידים) — הוא **אף פעם** לא יכול להיכנס כמשתנה `VITE_*` בפרונט-אנד, כי כל מה שמתחיל ב-`VITE_` נכנס ל-bundle הציבורי שרץ בדפדפן של כל מי שפותח את האפליקציה. לכן הקריאות בפועל לארבוקס קורות רק מתוך `supabase/functions/arbox-proxy` — Edge Function בצד שרת שמחזיקה את המפתח כ-secret (`supabase secrets set ARBOX_API_KEY=...`), והפרונט-אנד מדבר רק עם ה-Edge Function הזו, לא עם ארבוקס ישירות.
+
+**למה זה לא נבדק בפועל:** הסביבה שבה זה נכתב חסומה ברמת הרשת (egress proxy) מגישה ל-`arboxserver.arboxapp.com` — גם `fetch`/`curl` וגם WebFetch נכשלים בחיבור. זה נכון גם למפתח API תקין. יש כמה TODO-ים מסומנים בקוד (בעיקר ב-`arbox-proxy/index.ts`) לגבי דברים שצריך לאמת מול התיעוד המלא (שם ה-header לאימות, הנתיבים/השדות המדויקים מעבר ל-`POST /leads` שכבר תועד) ברגע שיש גישת רשת אמיתית — מסביבת פיתוח עם מדיניות רשת פתוחה יותר, או בפועל ב-production.
 
 ## הצעד הבא (לפי סדר העדיפויות בבריף)
 
