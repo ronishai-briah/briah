@@ -3,9 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
-      - claude/trusting-galileo-5nfnos
-      - claude/briaa-product-spec-cluumf
+      - claude/trusting-galileo-5nfnos # ברירת המחדל בפועל של הריפו — אין כאן ענף בשם main
   workflow_dispatch: {}
 
 permissions:
