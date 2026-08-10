@@ -12,12 +12,10 @@ const daysAgo = (n: number) => {
 export function buildSeedData(): AppData {
   return {
     users: [
-      // מייסדות. רק רוני מחזיקה 'finance' (תנאי העסקה/תשלומים/מסמכים) — ניצן Owner "רגיל" בלבד.
+      // מייסדות — שלושתן owner, רק רוני מחזיקה גם 'finance' (תנאי העסקה/תשלומים/מסמכים).
       { id: 'roni', name: 'רוני שי', email: 'roni@briah.me', roles: ['owner', 'finance'] },
       { id: 'nitzan', name: 'ניצן פהימה', email: 'nitzan@briah.me', roles: ['owner', 'melave', 'workshop_facilitator'] },
-      // עינב רביב היא מייסדת שותפה (CMO) גם כן, אבל לא הוגדר לה role owner/finance באפליקציה —
-      // לבדוק מול רוני אם רוצים לתת לה גישת-על, כרגע רק תפקידה כמנחת סדנה (מדיטציה).
-      { id: 'einav', name: 'עינב רביב', email: 'einav@briah.me', roles: ['workshop_facilitator'] },
+      { id: 'einav', name: 'עינב רביב', email: 'einav@briah.me', roles: ['owner', 'workshop_facilitator'] },
       // מלווים
       { id: 'meir', name: 'מאיר שריקי', email: 'meir@briah.me', roles: ['melave'] },
       { id: 'shachar', name: 'שחר זיו אור', email: 'shachar@briah.me', roles: ['melave'] },

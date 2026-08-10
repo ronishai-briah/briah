@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { hasRole } from '../../domain/permissions'
+import { hasRole, isOwner } from '../../domain/permissions'
 import { useAuth, useData } from '../../data/store'
 import type { AgreementType, PaymentStatus, PractitionerAgreement } from '../../domain/types'
 
@@ -152,7 +152,9 @@ export default function OwnerAdmin() {
   const { data } = useData()
   const { currentUserId } = useAuth()
   const user = data.users.find((u) => u.id === currentUserId)!
-  const practitioners = data.users.filter((u) => hasRole(u, 'matargel') || hasRole(u, 'workshop_facilitator'))
+  // בכוונה לא כולל מייסדות (owner) — גם אם הן גם מנחות סדנה, הן לא "מתרגלים שכירים" שצריך
+  // לעקוב אחרי תנאי העסקה/תשלום שלהם באותה מסך, ראו הבהרה מרוני.
+  const practitioners = data.users.filter((u) => (hasRole(u, 'matargel') || hasRole(u, 'workshop_facilitator')) && !isOwner(u))
   const submissions = data.submissions.slice().sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
 
   if (!hasRole(user, 'finance')) {
