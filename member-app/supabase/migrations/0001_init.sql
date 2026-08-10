@@ -237,9 +237,10 @@ alter table practitioner_agreements enable row level security;
 alter table practitioner_submissions enable row level security;
 alter table documents enable row level security;
 
--- profiles: כולם בצוות רואים את רשימת הצוות (לשיוך/תצוגת שמות); רק Owner עורך תפקידים.
+-- profiles: כולם בצוות רואים את רשימת הצוות (לשיוך/תצוגת שמות); רק מי שמחזיק/ה 'finance'
+-- (רוני) עורך/ת תפקידים - זו נקודת השליטה הכי רגישה, לא נפתחת ל-owner "רגיל" (ניצן/עינב).
 create policy profiles_select_all on profiles for select using (true);
-create policy profiles_update_owner on profiles for update using (is_owner());
+create policy profiles_update_finance on profiles for update using (has_finance());
 
 -- cycles: מידע תפעולי כללי, לא רגיש - כל הצוות המחובר רואה.
 create policy cycles_select_all on cycles for select using (true);

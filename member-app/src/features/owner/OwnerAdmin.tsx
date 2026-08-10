@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { hasRole, isOwner } from '../../domain/permissions'
 import { useAuth, useData } from '../../data/store'
 import type { AgreementType, PaymentStatus, PractitionerAgreement } from '../../domain/types'
+import TeamRoles from './TeamRoles'
 
 const agreementTypeLabels: Record<AgreementType, string> = {
   per_session: 'לפי טיפול/סדנה',
@@ -163,6 +164,8 @@ export default function OwnerAdmin() {
 
   return (
     <div>
+      <TeamRoles />
+
       <div className="card">
         <h2>תנאי העסקה למתרגלים/מנחים</h2>
         <p className="muted">רק רוני עורכת. המתרגל/ת רואה את שלו/ה בלבד, בקריאה בלבד.</p>

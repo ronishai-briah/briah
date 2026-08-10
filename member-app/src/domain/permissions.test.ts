@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   canCreateSubmission,
   canEditAgreement,
+  canManageRoles,
   canMarkPayment,
   canSetCriticalFlag,
   canViewAgreement,
@@ -217,6 +218,14 @@ describe('practitioner agreements — owner edits, practitioner reads own only',
     expect(canViewAgreement(matargel, agreement)).toBe(true) // ofri === matargel.id
     expect(canViewAgreement(melave, agreement)).toBe(false)
     expect(canViewAgreement(facilitator, agreement)).toBe(false)
+  })
+})
+
+describe('managing team roles — finance owner only, not plain owner', () => {
+  it('gates role management the same as other finance actions', () => {
+    expect(canManageRoles(financeOwner)).toBe(true)
+    expect(canManageRoles(owner)).toBe(false)
+    expect(canManageRoles(matargel)).toBe(false)
   })
 })
 

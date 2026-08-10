@@ -1,12 +1,6 @@
 import BriahMark from '../../components/BriahMark'
 import { useAuth, useData } from '../../data/store'
-
-const roleLabels: Record<string, string> = {
-  owner: 'Owner',
-  melave: 'מלווה',
-  matargel: 'מתרגל/ת 1:1',
-  workshop_facilitator: 'מנחה סדנה',
-}
+import { roleLabels } from '../../domain/roleLabels'
 
 export default function LoginScreen() {
   const { data } = useData()

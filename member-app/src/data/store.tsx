@@ -7,6 +7,7 @@ import type {
   PractitionerAgreement,
   PractitionerSubmission,
   ReceiptFile,
+  Role,
   SubmissionItem,
 } from '../domain/types'
 import { buildSeedData } from './seed'
@@ -48,6 +49,7 @@ interface DataContextValue {
     receipts: ReceiptFile[]
   }) => void
   markPayment: (submissionId: string, status: PaymentStatus, ownerId: string, ownerNote: string) => void
+  updateUserRoles: (userId: string, roles: Role[]) => void
   resetToSeed: () => void
 }
 
@@ -105,10 +107,19 @@ export function DataProvider({ children }: { children: ReactNode }) {
     [],
   )
 
+  const updateUserRoles = useCallback((userId: string, roles: Role[]) => {
+    setData((prev) => ({
+      ...prev,
+      users: prev.users.map((u) => (u.id === userId ? { ...u, roles } : u)),
+    }))
+  }, [])
+
   const resetToSeed = useCallback(() => setData(buildSeedData()), [])
 
   return (
-    <DataContext.Provider value={{ data, addNote, upsertAgreement, createSubmission, markPayment, resetToSeed }}>
+    <DataContext.Provider
+      value={{ data, addNote, upsertAgreement, createSubmission, markPayment, updateUserRoles, resetToSeed }}
+    >
       {children}
     </DataContext.Provider>
   )
