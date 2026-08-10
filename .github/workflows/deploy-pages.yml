@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - claude/trusting-galileo-5nfnos
+      - claude/trusting-galileo-5nfnos # ברירת המחדל בפועל של הריפו — אין כאן ענף בשם main
   workflow_dispatch: {}
 
 permissions:
@@ -23,8 +23,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm run build
+      - name: Build gantt app (root)
+        run: |
+          npm ci
+          npm run build
+      - name: Build member-app
+        run: |
+          cd member-app
+          npm ci
+          npm run build
+      - name: Combine into one Pages artifact
+        run: mkdir -p dist/member-app && cp -r member-app/dist/. dist/member-app/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
